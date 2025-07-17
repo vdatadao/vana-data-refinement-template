@@ -4,7 +4,7 @@ import os
 
 from refiner.models.offchain_schema import OffChainSchema
 from refiner.models.output import Output
-from refiner.transformer.user_transformer import UserTransformer
+from refiner.transformer.instagram_transformer import InstagramTransformer
 from refiner.config import settings
 from refiner.utils.encrypt import encrypt_file
 from refiner.utils.ipfs import upload_file_to_ipfs, upload_json_to_ipfs
@@ -15,7 +15,7 @@ class Refiner:
 
     def transform(self) -> Output:
         """Transform all input files into the database."""
-        logging.info("Starting data transformation")
+        logging.info("Starting Instagram data transformation")
         output = Output()
 
         # Iterate through files and transform data
@@ -25,10 +25,10 @@ class Refiner:
                 with open(input_file, 'r') as f:
                     input_data = json.load(f)
 
-                    # Transform account data
-                    transformer = UserTransformer(self.db_path)
+                    # Transform Instagram data
+                    transformer = InstagramTransformer(self.db_path)
                     transformer.process(input_data)
-                    logging.info(f"Transformed {input_filename}")
+                    logging.info(f"Transformed Instagram data from {input_filename}")
                     
                     # Create a schema based on the SQLAlchemy schema
                     schema = OffChainSchema(
@@ -45,7 +45,7 @@ class Refiner:
                     with open(schema_file, 'w') as f:
                         json.dump(schema.model_dump(), f, indent=4)
                         schema_ipfs_hash = upload_json_to_ipfs(schema.model_dump())
-                        logging.info(f"Schema uploaded to IPFS with hash: {schema_ipfs_hash}")
+                        logging.info(f"Instagram schema uploaded to IPFS with hash: {schema_ipfs_hash}")
                     
                     # Encrypt and upload the database to IPFS
                     encrypted_path = encrypt_file(settings.REFINEMENT_ENCRYPTION_KEY, self.db_path)
@@ -53,5 +53,5 @@ class Refiner:
                     output.refinement_url = f"{settings.IPFS_GATEWAY_URL}/{ipfs_hash}"
                     continue
 
-        logging.info("Data transformation completed successfully")
+        logging.info("Instagram data transformation completed successfully")
         return output

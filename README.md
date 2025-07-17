@@ -1,107 +1,116 @@
-# Vana Data Refinement Template
+# Instagram Data DAO - Vana Data Refinement
 
-This repository serves as a template for creating Dockerized *data refinement instructions* that transform raw user data into normalized (and potentially anonymized) SQLite-compatible databases, so data in Vana can be querying by Vana's Query Engine.
+Bu repository, Instagram verilerini Vana ağında işlemek için özelleştirilmiş bir Data DAO template'idir. Ham Instagram verilerini normalize edilmiş ve gizlilik odaklı SQLite veritabanlarına dönüştürür.
 
-## Overview
+## Instagram Data DAO Özellikleri
 
-Here is an overview of the data refinement process on Vana.
+### Desteklenen Veri Türleri
+- **Profil Bilgileri**: Kullanıcı adı, takipçi sayısı, gönderi sayısı (gizlilik korumalı)
+- **Gönderiler**: Beğeni, yorum sayıları, medya türleri, hashtag analizleri
+- **Hikayeler**: Görüntülenme sayıları, medya türü analizleri
+- **Yorumlar**: Yorum uzunlukları ve etkileşim metrikleri
+- **Direkt Mesajlar**: Mesaj uzunlukları ve türleri (içerik gizli)
+- **Etkileşim Metrikleri**: Profil görüntülenmeleri, erişim, gösterim sayıları
+- **Aktivite Desenleri**: Saatlik ve günlük aktivite analizleri
+- **Hashtag Kullanımı**: Hashtag kullanım sıklığı ve desenleri
 
-![How Refinements Work](https://files.readme.io/25f8f6a4c8e785a72105d6eb012d09449f63ab5682d1f385120eaf5af871f9a2-image.png "How Refinements Work")
+### Gizlilik Koruması
+- **Kullanıcı Adları**: SHA-256 ile hash'lenir
+- **Metin İçerikleri**: Sadece uzunluk bilgisi saklanır
+- **Kişisel Bilgiler**: Bio, yorumlar, mesajlar hash'lenir veya analitik veriye dönüştürülür
+- **Lokasyon Bilgileri**: Sadece varlık/yokluk bilgisi saklanır
 
-1. DLPs upload user-contributed data through their UI, and run proof-of-contribution against it. Afterwards, they call the refinement service to refine this data point.
-1. The refinement service downloads the file from the Data Registry and decrypts it.
-1. The refinement container, containing the instructions for data refinement (this repo), is executed
-   1. The decrypted data is mounted to the container's `/input` directory
-   1. The raw data points are transformed against a normalized SQLite database schema (specifically libSQL, a modern fork of SQLite)
-   1. Optionally, PII (Personally Identifiable Information) is removed or masked
-   1. The refined data is symmetrically encrypted with a derivative of the original file encryption key
-1. The encrypted refined data is uploaded and pinned to a DLP-owned IPFS
-1. The IPFS CID is written to the refinement container's `/output` directory
-1. The CID of the file is added as a refinement under the original file in the Data Registry
-1. Vana's Query Engine indexes that data point, aggregating it with all other data points of a given refiner. This allows SQL queries to run against all data of a particular refiner (schema).
+## Kurulum ve Kullanım
 
-## Project Structure
+### 1. Environment Ayarları
+```bash
+cp .env.example .env
+```
 
-- `refiner/`: Contains the main refinement logic
-    - `refine.py`: Core refinement implementation
-    - `config.py`: Environment variables and settings needed to run your refinement
-    - `__main__.py`: Entry point for the refinement execution
-    - `models/`: Pydantic and SQLAlchemy data models (for both unrefined and refined data)
-    - `transformer/`: Data transformation logic
-    - `utils/`: Utility functions for encryption, IPFS upload, etc.
-- `input/`: Contains raw data files to be refined
-- `output/`: Contains refined outputs:
-    - `schema.json`: Database schema definition
-    - `db.libsql`: SQLite database file
-    - `db.libsql.pgp`: Encrypted database file
-- `Dockerfile`: Defines the container image for the refinement task
-- `requirements.txt`: Python package dependencies
-
-## Getting Started
-
-1. Fork this repository
-2. Copy `.env.example` to `.env` and modify the values to match your environment
-3. Update the schemas in `refiner/models/` to define your raw and normalized data models
-4. Modify the refinement logic in `refiner/transformer/` to match your data structure
-5. If needed, modify `refiner/refiner.py` with your file(s) that need to be refined
-6. Build and test your refinement container
-
-### Environment variables
-
-Copy `.env.example` to `.env` and configure the following variables:
-
-```dotenv
-# Local directories where inputs and outputs are found
-# When running on the refinement service, files will be mounted to the /input and /output directory of the container
-INPUT_DIR=input
-OUTPUT_DIR=output
-
-# This key is derived from the user file's original encryption key, automatically injected into the container by the refinement service
-# When developing locally, any string can be used here for testing
-REFINEMENT_ENCRYPTION_KEY=0x1234
-
-# Schema configuration
-SCHEMA_NAME=Google Drive Analytics
+`.env` dosyasını düzenleyin:
+```env
+SCHEMA_NAME=Instagram Analytics
 SCHEMA_VERSION=0.0.1
-SCHEMA_DESCRIPTION=Schema for the Google Drive DLP, representing some basic analytics of the Google user
-SCHEMA_DIALECT=sqlite
+SCHEMA_DESCRIPTION=Schema for Instagram DLP, representing user profile, posts, stories, and engagement analytics
 
-# IPFS configuration
-# Required if using https://pinata.cloud (IPFS pinning service)
+# IPFS ayarları (Pinata için)
 PINATA_API_KEY=your_pinata_api_key_here
 PINATA_API_SECRET=your_pinata_api_secret_here
-
-# Public IPFS gateway URL for accessing uploaded files
-# Recommended to use own dedicated IPFS gateway to avoid congestion / rate limiting
-# Example: "https://ipfs.my-dao.org/ipfs" (Note: won't work for third-party files)
-IPFS_GATEWAY_URL=https://gateway.pinata.cloud/ipfs
 ```
 
-## Local Development
+### 2. Instagram Verisi Formatı
+Instagram verilerinizi `input/` klasörüne JSON formatında yerleştirin. Örnek format için `input/instagram_sample.json` dosyasına bakın.
 
-To run the refinement locally for testing:
-
+### 3. Yerel Test
 ```bash
-# With Python
-pip install --no-cache-dir -r requirements.txt
+# Python ile
+pip install -r requirements.txt
 python -m refiner
 
-# Or with Docker
-docker build -t refiner .
-docker run \
-  --rm \
+# Docker ile
+docker build -t instagram-refiner .
+docker run --rm \
   --volume $(pwd)/input:/input \
   --volume $(pwd)/output:/output \
-  --env PINATA_API_KEY=your_key \
-  --env PINATA_API_SECRET=your_secret \
-  refiner
+  --env-file .env \
+  instagram-refiner
 ```
 
-## Contributing
+## Veri Şeması
 
-If you have suggestions for improving this template, please open an issue or submit a pull request.
+### Ana Tablolar
+1. **user_profiles**: Kullanıcı profil bilgileri (gizlilik korumalı)
+2. **posts**: Gönderi metrikleri ve etkileşim verileri
+3. **stories**: Hikaye görüntülenme ve medya analizleri
+4. **comments**: Yorum etkileşim metrikleri
+5. **direct_messages**: Mesaj istatistikleri (içerik korunmaz)
+6. **engagement_metrics**: Günlük etkileşim metrikleri
+7. **hashtag_usage**: Hashtag kullanım desenleri
+8. **activity_patterns**: Saatlik/günlük aktivite analizleri
 
-## License
+### Analitik Özellikler
+- **Etkileşim Oranı**: (Beğeni + Yorum) / Takipçi sayısı
+- **Aktivite Desenleri**: Hangi saatlerde daha aktif
+- **Hashtag Analizleri**: En çok kullanılan hashtag'ler
+- **Medya Türü Dağılımı**: Fotoğraf vs video tercihleri
+- **Sosyal Etkileşim**: Yorum ve DM sıklığı
+
+## Instagram Veri Kaynakları
+
+Bu refiner aşağıdaki Instagram veri kaynaklarıyla çalışabilir:
+- Instagram Data Export (resmi)
+- Instagram Business API verileri
+- Instagram Analytics verileri
+- Üçüncü parti Instagram analiz araçları
+
+## Deployment
+
+GitHub Actions otomatik olarak Docker image'ını build eder ve release yapar:
+
+```bash
+# Manuel build
+docker build -t instagram-refiner .
+
+# Release
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+## Vana Ağında Kullanım
+
+1. Bu refiner'ı Vana ağına deploy edin
+2. Instagram DLP'nizi bu refiner ile yapılandırın
+3. Kullanıcılar Instagram verilerini yükleyebilir
+4. Veriler otomatik olarak rafine edilir ve IPFS'e yüklenir
+5. Vana Query Engine ile analiz edilebilir
+
+## Katkıda Bulunma
+
+Instagram veri işleme özelliklerini geliştirmek için:
+1. Fork yapın
+2. Yeni özellikler ekleyin
+3. Pull request gönderin
+
+## Lisans
 
 [MIT License](LICENSE)
-

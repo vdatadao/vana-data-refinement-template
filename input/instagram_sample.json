@@ -1,0 +1,88 @@
+{
+  "user_id": "instagram_user_123",
+  "profile": {
+    "username": "sample_user",
+    "full_name": "Sample User",
+    "bio": "Photography enthusiast 📸 | Travel lover ✈️ | Coffee addict ☕",
+    "follower_count": 1250,
+    "following_count": 890,
+    "post_count": 156,
+    "is_verified": false,
+    "is_private": false,
+    "profile_pic_url": "https://example.com/profile.jpg"
+  },
+  "posts": [
+    {
+      "post_id": "post_001",
+      "caption": "Beautiful sunset at the beach! #sunset #beach #photography #nature",
+      "timestamp": "2024-01-15T18:30:00Z",
+      "like_count": 89,
+      "comment_count": 12,
+      "media": [
+        {
+          "media_type": "photo",
+          "url": "https://example.com/photo1.jpg",
+          "thumbnail_url": "https://example.com/thumb1.jpg"
+        }
+      ],
+      "location": "Malibu Beach",
+      "hashtags": ["sunset", "beach", "photography", "nature"]
+    },
+    {
+      "post_id": "post_002",
+      "caption": "Morning coffee routine ☕ #coffee #morning #lifestyle",
+      "timestamp": "2024-01-14T08:15:00Z",
+      "like_count": 45,
+      "comment_count": 8,
+      "media": [
+        {
+          "media_type": "video",
+          "url": "https://example.com/video1.mp4",
+          "thumbnail_url": "https://example.com/video_thumb1.jpg"
+        }
+      ],
+      "location": null,
+      "hashtags": ["coffee", "morning", "lifestyle"]
+    }
+  ],
+  "stories": [
+    {
+      "story_id": "story_001",
+      "timestamp": "2024-01-16T12:00:00Z",
+      "media_type": "photo",
+      "view_count": 234,
+      "media_url": "https://example.com/story1.jpg"
+    }
+  ],
+  "comments": [
+    {
+      "comment_id": "comment_001",
+      "post_id": "post_001",
+      "text": "Amazing shot! 📸",
+      "timestamp": "2024-01-15T19:00:00Z",
+      "like_count": 3,
+      "author_username": "friend_user"
+    }
+  ],
+  "direct_messages": [
+    {
+      "message_id": "dm_001",
+      "conversation_id": "conv_123",
+      "sender_username": "sample_user",
+      "recipient_username": "friend_user",
+      "message_text": "Hey! Thanks for the comment on my photo",
+      "timestamp": "2024-01-15T20:00:00Z",
+      "message_type": "text"
+    }
+  ],
+  "engagement_metrics": [
+    {
+      "date": "2024-01-15T00:00:00Z",
+      "profile_views": 45,
+      "reach": 567,
+      "impressions": 1234,
+      "website_clicks": 12
+    }
+  ],
+  "data_export_timestamp": "2024-01-16T10:00:00Z"
+}
