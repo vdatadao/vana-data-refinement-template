@@ -4,6 +4,13 @@ Bu repository, Instagram verilerini Vana ağında işlemek için özelleştirilm
 
 ## Instagram Data DAO Özellikleri
 
+### Proof Sistemi
+- **Veri Doğrulama**: Her veri seti için otomatik proof dosyası oluşturulur
+- **Bütünlük Kontrolü**: SHA-256 hash'leri ile veri bütünlüğü garanti edilir
+- **Güvenilirlik Skoru**: 0.0-1.0 arası confidence score hesaplanır
+- **Doğrulama Metodu**: Verinin kaynağı (resmi export, API, scraping) belirlenir
+- **IPFS Yükleme**: Proof dosyası da IPFS'e yüklenir ve doğrulanabilir
+
 ### Desteklenen Veri Türleri
 - **Profil Bilgileri**: Kullanıcı adı, takipçi sayısı, gönderi sayısı (gizlilik korumalı)
 - **Gönderiler**: Beğeni, yorum sayıları, medya türleri, hashtag analizleri

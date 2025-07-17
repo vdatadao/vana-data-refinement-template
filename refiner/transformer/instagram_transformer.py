@@ -11,8 +11,12 @@ from refiner.models.refined import (
     HashtagUsageRefined, ActivityPatternRefined
 )
 from refiner.models.unrefined import InstagramData
+from refiner.models.proof import InstagramProof
+from refiner.utils.proof_generator import InstagramProofGenerator
 from refiner.utils.date import parse_timestamp
 from refiner.utils.pii import hash_text
+import json
+import os
 
 class InstagramTransformer(DataTransformer):
     """
@@ -60,7 +64,21 @@ class InstagramTransformer(DataTransformer):
         # Create activity patterns
         models.extend(self._create_activity_patterns(instagram_data))
         
+        # Generate and save proof
+        self._generate_proof(instagram_data)
+        
         return models
+    
+    def _generate_proof(self, data: InstagramData) -> None:
+        """Generate proof file for data verification."""
+        proof_generator = InstagramProofGenerator(data)
+        proof = proof_generator.generate_proof()
+        
+        # Save proof to output directory
+        from refiner.config import settings
+        proof_path = os.path.join(settings.OUTPUT_DIR, "proof.json")
+        with open(proof_path, 'w') as f:
+            json.dump(proof.model_dump(), f, indent=2)
     
     def _create_user_profile(self, data: InstagramData, export_date: datetime) -> UserProfileRefined:
         """Create user profile with privacy-focused data."""

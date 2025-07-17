@@ -47,6 +47,14 @@ class Refiner:
                         schema_ipfs_hash = upload_json_to_ipfs(schema.model_dump())
                         logging.info(f"Instagram schema uploaded to IPFS with hash: {schema_ipfs_hash}")
                     
+                    # Upload proof to IPFS
+                    proof_file = os.path.join(settings.OUTPUT_DIR, 'proof.json')
+                    if os.path.exists(proof_file):
+                        with open(proof_file, 'r') as f:
+                            proof_data = json.load(f)
+                            proof_ipfs_hash = upload_json_to_ipfs(proof_data)
+                            logging.info(f"Instagram proof uploaded to IPFS with hash: {proof_ipfs_hash}")
+                    
                     # Encrypt and upload the database to IPFS
                     encrypted_path = encrypt_file(settings.REFINEMENT_ENCRYPTION_KEY, self.db_path)
                     ipfs_hash = upload_file_to_ipfs(encrypted_path)
