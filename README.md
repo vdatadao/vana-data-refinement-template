@@ -29,9 +29,9 @@ cp .env.example .env
 
 `.env` dosyasını düzenleyin:
 ```env
-SCHEMA_NAME=Instagram Analytics
+SCHEMA_NAME=Instagram User Behavior Analytics
 SCHEMA_VERSION=0.0.1
-SCHEMA_DESCRIPTION=Schema for Instagram DLP, representing user profile, posts, stories, and engagement analytics
+SCHEMA_DESCRIPTION=Schema for Instagram DLP, analyzing user behavior patterns including posting habits, engagement metrics, activity patterns, and social interactions
 
 # IPFS ayarları (Pinata için)
 PINATA_API_KEY=your_pinata_api_key_here
